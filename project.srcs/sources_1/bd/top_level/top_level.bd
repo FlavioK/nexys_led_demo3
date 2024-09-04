@@ -533,7 +533,7 @@
                 "value_src": "constant"
               },
               "ADDR_WIDTH": {
-                "value": "1",
+                "value": "7",
                 "value_src": "auto"
               },
               "AWUSER_WIDTH": {
@@ -633,7 +633,7 @@
               "AWADDR": {
                 "physical_name": "S_AXI_AWADDR",
                 "direction": "I",
-                "left": "0",
+                "left": "6",
                 "right": "0"
               },
               "AWPROT": {
@@ -687,7 +687,7 @@
               "ARADDR": {
                 "physical_name": "S_AXI_ARADDR",
                 "direction": "I",
-                "left": "0",
+                "left": "6",
                 "right": "0"
               },
               "ARPROT": {

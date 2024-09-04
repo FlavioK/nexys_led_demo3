@@ -12,7 +12,7 @@
 */
 
 
-module axi_led_slave # (parameter AW=1)
+module axi_led_slave # (parameter AW=7)
 (
     input clk, resetn,
 
