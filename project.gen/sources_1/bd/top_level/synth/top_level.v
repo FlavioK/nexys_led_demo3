@@ -1,7 +1,7 @@
 //Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2021.1 (lin64) Build 3247384 Thu Jun 10 19:36:07 MDT 2021
-//Date        : Wed Sep  4 14:40:13 2024
+//Date        : Fri Sep  6 19:03:40 2024
 //Host        : simtool-5 running 64-bit Ubuntu 20.04.6 LTS
 //Command     : generate_target top_level.bd
 //Design      : top_level
@@ -45,11 +45,13 @@ module top_level
    (BTNU,
     CLK100MHZ,
     CPU_RESETN,
-    LED);
+    LED,
+    SW);
   input BTNU;
   (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 CLK.CLK100MHZ CLK" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CLK.CLK100MHZ, CLK_DOMAIN top_level_CLK100MHZ, FREQ_HZ 100000000, FREQ_TOLERANCE_HZ 0, INSERT_VIP 0, PHASE 0.0" *) input CLK100MHZ;
   (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 RST.CPU_RESETN RST" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME RST.CPU_RESETN, INSERT_VIP 0, POLARITY ACTIVE_LOW" *) input CPU_RESETN;
   output [15:0]LED;
+  input [9:0]SW;
 
   wire PIN_0_1;
   wire [15:0]axi_led_slave_leds;
@@ -72,6 +74,7 @@ module top_level
   wire dance_master_M_AXI_WREADY;
   wire [3:0]dance_master_M_AXI_WSTRB;
   wire dance_master_M_AXI_WVALID;
+  wire [9:0]delay_switches_0_1;
   wire ext_reset_in_0_1;
   wire source_100mhz_clk_100mhz;
   wire [0:0]source_100mhz_peripheral_aresetn;
@@ -98,6 +101,7 @@ module top_level
   assign LED[15:0] = axi_led_slave_leds;
   assign PIN_0_1 = BTNU;
   assign clk_in1_0_1 = CLK100MHZ;
+  assign delay_switches_0_1 = SW[9:0];
   assign ext_reset_in_0_1 = CPU_RESETN;
   top_level_axi_led_slave_0_0 axi_led_slave
        (.S_AXI_ARADDR(system_interconnect_M00_AXI_ARADDR),
@@ -146,6 +150,7 @@ module top_level
         .M_AXI_WVALID(dance_master_M_AXI_WVALID),
         .button(button_Q),
         .clk(source_100mhz_clk_100mhz),
+        .ms_delay(delay_switches_0_1),
         .resetn(source_100mhz_peripheral_aresetn));
   source_100mhz_imp_MSWE0P source_100mhz
        (.CLK100MHZ(clk_in1_0_1),

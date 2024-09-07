@@ -1,5 +1,5 @@
 dest=bitstream
-base=nexys_led_demo2
+base=nexys_led_demo3_solved
 
 mkdir $dest 2>/dev/null
 
