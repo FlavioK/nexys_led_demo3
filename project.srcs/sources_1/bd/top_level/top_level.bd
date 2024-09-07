@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0xE8D8A9BFC5A27569",
+      "boundary_crc": "0x54C8FDA9BB24F521",
       "device": "xc7a100tcsg324-1",
       "gen_directory": "../../../../project.gen/sources_1/bd/top_level",
       "name": "top_level",
@@ -68,11 +68,6 @@
       },
       "BTNU": {
         "direction": "I"
-      },
-      "SW": {
-        "direction": "I",
-        "left": "9",
-        "right": "0"
       }
     },
     "components": {
@@ -765,11 +760,6 @@
           },
           "button": {
             "direction": "I"
-          },
-          "ms_delay": {
-            "direction": "I",
-            "left": "9",
-            "right": "0"
           }
         },
         "addressing": {
@@ -819,12 +809,6 @@
         "ports": [
           "CLK100MHZ",
           "source_100mhz/CLK100MHZ"
-        ]
-      },
-      "delay_switches_0_1": {
-        "ports": [
-          "SW",
-          "dance_master/ms_delay"
         ]
       },
       "ext_reset_in_0_1": {
