@@ -9,11 +9,8 @@
 
 /*
 
-     This module bounces a "cylon-eye" pattern back and forth on the 16-LEDs
-     on the Nexys-A7.   The delay between LED patterns is specified in 
-     milliseconds and is input via the 10 right-most slide-switches.
+     This module serves as an example of an AXI4-Lite Master
 
-    The "Up" button serves as a start/pause button
 */
 
 
@@ -23,9 +20,6 @@ module dance_master # (parameter FREQ_HZ = 100000000, SLAVE_ADDR = 32'h1000)
     input wire clk, resetn,
 
     input button,
-
-    // The delay between LED states, in milliseconds
-    input[9:0] ms_delay,
 
     //====================  An AXI-Lite Master Interface  ======================
 
@@ -58,16 +52,6 @@ module dance_master # (parameter FREQ_HZ = 100000000, SLAVE_ADDR = 32'h1000)
     //==========================================================================
 );
 
-// This is the number of clock-cycles per millisecond
-localparam CLOCKS_PER_MSEC = FREQ_HZ/1000;
-
-// Constants to represent the direction the cylon-eye is moving
-localparam MOVE_LEFT  = 0;
-localparam MOVE_RIGHT = 1;
-
-// Constants that represent the LED pattern at either edge 
-localparam LEFT_EDGE  = 16'he000;
-localparam RIGHT_EDGE = 16'h0007;
 
 //==========================================================================
 // We use these as the AMCI interface to an AXI4-Lite Master
@@ -90,30 +74,9 @@ reg[3:0] fsm_state;
 // This is a countdown timer for implementing delays
 reg[31:0] delay;
 
-// This is the direction the cylon-eye is currently moving
-reg direction;
-
-// This is the next pattern to drive out
-reg[15:0] pattern;
-
 //==========================================================================
-// This state machine uses the button as a "start/stop" mechanism to 
-// either set or clear 'running'
-//==========================================================================
-reg running;
-always @(posedge clk) begin
-    if (resetn == 0)
-        running <= 0;
-    else if (button)
-        running <= ~running;
-end
-//==========================================================================
-
-
-
-//==========================================================================
-// This state machine drives a cylon-eye pattern back and forth across the
-// 16 LEDs
+// This state machine alternates sending 0xAAAA and 0x5555 to an AXI slave,
+// with a 250ms delay after each transaction
 //==========================================================================
 always @(posedge clk) begin
     
@@ -124,47 +87,39 @@ always @(posedge clk) begin
 
     if (resetn == 0) begin
         fsm_state <= 0;
+        delay     <= 0;
     end else case (fsm_state)
 
-        // Set up all the initial conditions
-        0:  begin
+        // Wait for the button to be pressed
+        0:  if (button) fsm_state <= fsm_state + 1;
+        
+        // If the timer has expired, send 'AAAA' to the LED slave
+        1:  if (delay == 0) begin
                 AMCI_WADDR <= SLAVE_ADDR;
-                AMCI_WDATA <= 0;
+                AMCI_WDATA <= 16'hAAAA;
                 AMCI_WRITE <= 1;
-                pattern    <= RIGHT_EDGE;
-                direction  <= MOVE_LEFT;
                 fsm_state  <= fsm_state + 1;
             end
 
-        // If we're running, drive the desired pattern to the LEDs
-        1:  if (running & AMCI_WIDLE) begin
-                AMCI_WDATA <= pattern;
-                AMCI_WRITE <= 1;
-                delay      <= ms_delay * CLOCKS_PER_MSEC;
-                fsm_state  <= fsm_state + 1;
-            end
-
-        // Compute the next pattern
-        2:  begin
-                // If the eye is moving left...
-                if (direction == MOVE_LEFT) begin
-                    if (pattern == LEFT_EDGE)
-                        direction <= MOVE_RIGHT;
-                    else
-                        pattern <= pattern << 1;
-                end
-
-                // Otherwise, the eye is moving right...
-                else if (pattern == RIGHT_EDGE)
-                    direction <= MOVE_LEFT;
-                else
-                    pattern <= pattern >> 1;
-                
+        // When the write transaction is complete, start a timer
+        2:  if (AMCI_WIDLE) begin
+                delay     <= FREQ_HZ / 4;
                 fsm_state <= fsm_state + 1;
             end
 
-        // Once the timer expires, go write the new pattern to the LEDs
-        3:  if (delay == 0) fsm_state <= 1;
+        // After the timer has expired, send '5555' to the LED slave
+        3:  if (delay == 0) begin
+                AMCI_WADDR <= SLAVE_ADDR;
+                AMCI_WDATA <= 16'h5555;
+                AMCI_WRITE <= 1;
+                fsm_state  <= fsm_state + 1;
+            end
+
+        // When the write transaction has completed, start a timer
+        4:  if (AMCI_WIDLE) begin
+                delay     <= FREQ_HZ / 5;
+                fsm_state <= 1;
+            end
 
     endcase
 
