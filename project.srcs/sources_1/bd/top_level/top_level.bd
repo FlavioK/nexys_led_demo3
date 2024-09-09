@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0x54C8FDA9BB24F521",
+      "boundary_crc": "0x16704262D3F5800F",
       "device": "xc7a100tcsg324-1",
       "gen_directory": "../../../../project.gen/sources_1/bd/top_level",
       "name": "top_level",
@@ -68,6 +68,30 @@
       },
       "BTNU": {
         "direction": "I"
+      },
+      "SW": {
+        "type": "data",
+        "direction": "I",
+        "left": "9",
+        "right": "0",
+        "parameters": {
+          "LAYERED_METADATA": {
+            "value": "undef",
+            "value_src": "default"
+          }
+        }
+      },
+      "PT": {
+        "type": "data",
+        "direction": "I",
+        "left": "5",
+        "right": "0",
+        "parameters": {
+          "LAYERED_METADATA": {
+            "value": "undef",
+            "value_src": "default"
+          }
+        }
       }
     },
     "components": {
@@ -760,6 +784,28 @@
           },
           "button": {
             "direction": "I"
+          },
+          "delay_ms": {
+            "direction": "I",
+            "left": "9",
+            "right": "0",
+            "parameters": {
+              "LAYERED_METADATA": {
+                "value": "undef",
+                "value_src": "default_prop"
+              }
+            }
+          },
+          "input_pattern": {
+            "direction": "I",
+            "left": "5",
+            "right": "0",
+            "parameters": {
+              "LAYERED_METADATA": {
+                "value": "undef",
+                "value_src": "default_prop"
+              }
+            }
           }
         },
         "addressing": {
@@ -791,6 +837,18 @@
         "ports": [
           "BTNU",
           "button/PIN"
+        ]
+      },
+      "PT_1": {
+        "ports": [
+          "PT",
+          "dance_master/input_pattern"
+        ]
+      },
+      "SW_1": {
+        "ports": [
+          "SW",
+          "dance_master/delay_ms"
         ]
       },
       "axi_led_slave_leds": {

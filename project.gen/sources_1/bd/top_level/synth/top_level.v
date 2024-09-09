@@ -1,8 +1,8 @@
 //Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2021.1 (lin64) Build 3247384 Thu Jun 10 19:36:07 MDT 2021
-//Date        : Fri Sep  6 19:24:52 2024
-//Host        : simtool-5 running 64-bit Ubuntu 20.04.6 LTS
+//Date        : Mon Sep  9 11:58:16 2024
+//Host        : rrouwprlc0283 running 64-bit Ubuntu 22.04.4 LTS
 //Command     : generate_target top_level.bd
 //Design      : top_level
 //Purpose     : IP block netlist
@@ -45,66 +45,74 @@ module top_level
    (BTNU,
     CLK100MHZ,
     CPU_RESETN,
-    LED);
+    LED,
+    PT,
+    SW);
   input BTNU;
   (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 CLK.CLK100MHZ CLK" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CLK.CLK100MHZ, CLK_DOMAIN top_level_CLK100MHZ, FREQ_HZ 100000000, FREQ_TOLERANCE_HZ 0, INSERT_VIP 0, PHASE 0.0" *) input CLK100MHZ;
   (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 RST.CPU_RESETN RST" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME RST.CPU_RESETN, INSERT_VIP 0, POLARITY ACTIVE_LOW" *) input CPU_RESETN;
   output [15:0]LED;
+  (* X_INTERFACE_INFO = "xilinx.com:signal:data:1.0 DATA.PT DATA" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME DATA.PT, LAYERED_METADATA undef" *) input [5:0]PT;
+  (* X_INTERFACE_INFO = "xilinx.com:signal:data:1.0 DATA.SW DATA" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME DATA.SW, LAYERED_METADATA undef" *) input [9:0]SW;
 
   wire PIN_0_1;
+  wire [5:0]PT_1;
+  wire [9:0]SW_1;
   wire [15:0]axi_led_slave_leds;
   wire button_Q;
   wire clk_in1_0_1;
   wire [31:0]dance_master_M_AXI_ARADDR;
-  wire [0:0]dance_master_M_AXI_ARREADY;
+  wire dance_master_M_AXI_ARREADY;
   wire dance_master_M_AXI_ARVALID;
   wire [31:0]dance_master_M_AXI_AWADDR;
-  wire [0:0]dance_master_M_AXI_AWREADY;
+  wire dance_master_M_AXI_AWREADY;
   wire dance_master_M_AXI_AWVALID;
   wire dance_master_M_AXI_BREADY;
   wire [1:0]dance_master_M_AXI_BRESP;
-  wire [0:0]dance_master_M_AXI_BVALID;
-  wire dance_master_M_AXI_RDATA;
+  wire dance_master_M_AXI_BVALID;
+  wire [31:0]dance_master_M_AXI_RDATA;
   wire dance_master_M_AXI_RREADY;
   wire [1:0]dance_master_M_AXI_RRESP;
-  wire [0:0]dance_master_M_AXI_RVALID;
+  wire dance_master_M_AXI_RVALID;
   wire [31:0]dance_master_M_AXI_WDATA;
-  wire [0:0]dance_master_M_AXI_WREADY;
+  wire dance_master_M_AXI_WREADY;
   wire [3:0]dance_master_M_AXI_WSTRB;
   wire dance_master_M_AXI_WVALID;
   wire ext_reset_in_0_1;
   wire source_100mhz_clk_100mhz;
   wire [0:0]source_100mhz_peripheral_aresetn;
-  wire system_interconnect_M00_AXI_ARADDR;
+  wire [6:0]system_interconnect_M00_AXI_ARADDR;
   wire [2:0]system_interconnect_M00_AXI_ARPROT;
   wire system_interconnect_M00_AXI_ARREADY;
-  wire [0:0]system_interconnect_M00_AXI_ARVALID;
-  wire system_interconnect_M00_AXI_AWADDR;
+  wire system_interconnect_M00_AXI_ARVALID;
+  wire [6:0]system_interconnect_M00_AXI_AWADDR;
   wire [2:0]system_interconnect_M00_AXI_AWPROT;
   wire system_interconnect_M00_AXI_AWREADY;
-  wire [0:0]system_interconnect_M00_AXI_AWVALID;
-  wire [0:0]system_interconnect_M00_AXI_BREADY;
+  wire system_interconnect_M00_AXI_AWVALID;
+  wire system_interconnect_M00_AXI_BREADY;
   wire [1:0]system_interconnect_M00_AXI_BRESP;
   wire system_interconnect_M00_AXI_BVALID;
   wire [31:0]system_interconnect_M00_AXI_RDATA;
-  wire [0:0]system_interconnect_M00_AXI_RREADY;
+  wire system_interconnect_M00_AXI_RREADY;
   wire [1:0]system_interconnect_M00_AXI_RRESP;
   wire system_interconnect_M00_AXI_RVALID;
-  wire system_interconnect_M00_AXI_WDATA;
+  wire [31:0]system_interconnect_M00_AXI_WDATA;
   wire system_interconnect_M00_AXI_WREADY;
-  wire system_interconnect_M00_AXI_WSTRB;
-  wire [0:0]system_interconnect_M00_AXI_WVALID;
+  wire [3:0]system_interconnect_M00_AXI_WSTRB;
+  wire system_interconnect_M00_AXI_WVALID;
 
   assign LED[15:0] = axi_led_slave_leds;
   assign PIN_0_1 = BTNU;
+  assign PT_1 = PT[5:0];
+  assign SW_1 = SW[9:0];
   assign clk_in1_0_1 = CLK100MHZ;
   assign ext_reset_in_0_1 = CPU_RESETN;
   top_level_axi_led_slave_0_0 axi_led_slave
-       (.S_AXI_ARADDR({system_interconnect_M00_AXI_ARADDR,system_interconnect_M00_AXI_ARADDR,system_interconnect_M00_AXI_ARADDR,system_interconnect_M00_AXI_ARADDR,system_interconnect_M00_AXI_ARADDR,system_interconnect_M00_AXI_ARADDR,system_interconnect_M00_AXI_ARADDR}),
+       (.S_AXI_ARADDR(system_interconnect_M00_AXI_ARADDR),
         .S_AXI_ARPROT(system_interconnect_M00_AXI_ARPROT),
         .S_AXI_ARREADY(system_interconnect_M00_AXI_ARREADY),
         .S_AXI_ARVALID(system_interconnect_M00_AXI_ARVALID),
-        .S_AXI_AWADDR({system_interconnect_M00_AXI_AWADDR,system_interconnect_M00_AXI_AWADDR,system_interconnect_M00_AXI_AWADDR,system_interconnect_M00_AXI_AWADDR,system_interconnect_M00_AXI_AWADDR,system_interconnect_M00_AXI_AWADDR,system_interconnect_M00_AXI_AWADDR}),
+        .S_AXI_AWADDR(system_interconnect_M00_AXI_AWADDR),
         .S_AXI_AWPROT(system_interconnect_M00_AXI_AWPROT),
         .S_AXI_AWREADY(system_interconnect_M00_AXI_AWREADY),
         .S_AXI_AWVALID(system_interconnect_M00_AXI_AWVALID),
@@ -115,9 +123,9 @@ module top_level
         .S_AXI_RREADY(system_interconnect_M00_AXI_RREADY),
         .S_AXI_RRESP(system_interconnect_M00_AXI_RRESP),
         .S_AXI_RVALID(system_interconnect_M00_AXI_RVALID),
-        .S_AXI_WDATA({system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA,system_interconnect_M00_AXI_WDATA}),
+        .S_AXI_WDATA(system_interconnect_M00_AXI_WDATA),
         .S_AXI_WREADY(system_interconnect_M00_AXI_WREADY),
-        .S_AXI_WSTRB({system_interconnect_M00_AXI_WSTRB,system_interconnect_M00_AXI_WSTRB,system_interconnect_M00_AXI_WSTRB,system_interconnect_M00_AXI_WSTRB}),
+        .S_AXI_WSTRB(system_interconnect_M00_AXI_WSTRB),
         .S_AXI_WVALID(system_interconnect_M00_AXI_WVALID),
         .clk(source_100mhz_clk_100mhz),
         .leds(axi_led_slave_leds),
@@ -136,7 +144,7 @@ module top_level
         .M_AXI_BREADY(dance_master_M_AXI_BREADY),
         .M_AXI_BRESP(dance_master_M_AXI_BRESP),
         .M_AXI_BVALID(dance_master_M_AXI_BVALID),
-        .M_AXI_RDATA({dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA,dance_master_M_AXI_RDATA}),
+        .M_AXI_RDATA(dance_master_M_AXI_RDATA),
         .M_AXI_RREADY(dance_master_M_AXI_RREADY),
         .M_AXI_RRESP(dance_master_M_AXI_RRESP),
         .M_AXI_RVALID(dance_master_M_AXI_RVALID),
@@ -146,6 +154,8 @@ module top_level
         .M_AXI_WVALID(dance_master_M_AXI_WVALID),
         .button(button_Q),
         .clk(source_100mhz_clk_100mhz),
+        .delay_ms(SW_1),
+        .input_pattern(PT_1),
         .resetn(source_100mhz_peripheral_aresetn));
   source_100mhz_imp_MSWE0P source_100mhz
        (.CLK100MHZ(clk_in1_0_1),
@@ -161,47 +171,24 @@ module top_level
         .M00_AXI_awprot(system_interconnect_M00_AXI_AWPROT),
         .M00_AXI_awready(system_interconnect_M00_AXI_AWREADY),
         .M00_AXI_awvalid(system_interconnect_M00_AXI_AWVALID),
-        .M00_AXI_bid(1'b0),
         .M00_AXI_bready(system_interconnect_M00_AXI_BREADY),
         .M00_AXI_bresp(system_interconnect_M00_AXI_BRESP),
-        .M00_AXI_buser(1'b0),
         .M00_AXI_bvalid(system_interconnect_M00_AXI_BVALID),
-        .M00_AXI_rdata(system_interconnect_M00_AXI_RDATA[0]),
-        .M00_AXI_rid(1'b0),
-        .M00_AXI_rlast(1'b0),
+        .M00_AXI_rdata(system_interconnect_M00_AXI_RDATA),
         .M00_AXI_rready(system_interconnect_M00_AXI_RREADY),
         .M00_AXI_rresp(system_interconnect_M00_AXI_RRESP),
-        .M00_AXI_ruser(1'b0),
         .M00_AXI_rvalid(system_interconnect_M00_AXI_RVALID),
         .M00_AXI_wdata(system_interconnect_M00_AXI_WDATA),
         .M00_AXI_wready(system_interconnect_M00_AXI_WREADY),
         .M00_AXI_wstrb(system_interconnect_M00_AXI_WSTRB),
         .M00_AXI_wvalid(system_interconnect_M00_AXI_WVALID),
-        .S00_AXI_araddr(dance_master_M_AXI_ARADDR[0]),
-        .S00_AXI_arburst({1'b0,1'b1}),
-        .S00_AXI_arcache({1'b0,1'b0,1'b1,1'b1}),
-        .S00_AXI_arid(1'b0),
-        .S00_AXI_arlen(1'b0),
-        .S00_AXI_arlock(1'b0),
+        .S00_AXI_araddr(dance_master_M_AXI_ARADDR),
         .S00_AXI_arprot({1'b0,1'b0,1'b0}),
-        .S00_AXI_arqos({1'b0,1'b0,1'b0,1'b0}),
         .S00_AXI_arready(dance_master_M_AXI_ARREADY),
-        .S00_AXI_arregion({1'b0,1'b0,1'b0,1'b0}),
-        .S00_AXI_arsize({1'b0,1'b1,1'b0}),
-        .S00_AXI_aruser(1'b0),
         .S00_AXI_arvalid(dance_master_M_AXI_ARVALID),
-        .S00_AXI_awaddr(dance_master_M_AXI_AWADDR[0]),
-        .S00_AXI_awburst({1'b0,1'b1}),
-        .S00_AXI_awcache({1'b0,1'b0,1'b1,1'b1}),
-        .S00_AXI_awid(1'b0),
-        .S00_AXI_awlen(1'b0),
-        .S00_AXI_awlock(1'b0),
+        .S00_AXI_awaddr(dance_master_M_AXI_AWADDR),
         .S00_AXI_awprot({1'b0,1'b0,1'b0}),
-        .S00_AXI_awqos({1'b0,1'b0,1'b0,1'b0}),
         .S00_AXI_awready(dance_master_M_AXI_AWREADY),
-        .S00_AXI_awregion({1'b0,1'b0,1'b0,1'b0}),
-        .S00_AXI_awsize({1'b0,1'b1,1'b0}),
-        .S00_AXI_awuser(1'b0),
         .S00_AXI_awvalid(dance_master_M_AXI_AWVALID),
         .S00_AXI_bready(dance_master_M_AXI_BREADY),
         .S00_AXI_bresp(dance_master_M_AXI_BRESP),
@@ -210,12 +197,9 @@ module top_level
         .S00_AXI_rready(dance_master_M_AXI_RREADY),
         .S00_AXI_rresp(dance_master_M_AXI_RRESP),
         .S00_AXI_rvalid(dance_master_M_AXI_RVALID),
-        .S00_AXI_wdata(dance_master_M_AXI_WDATA[0]),
-        .S00_AXI_wid(1'b0),
-        .S00_AXI_wlast(1'b0),
+        .S00_AXI_wdata(dance_master_M_AXI_WDATA),
         .S00_AXI_wready(dance_master_M_AXI_WREADY),
-        .S00_AXI_wstrb(dance_master_M_AXI_WSTRB[0]),
-        .S00_AXI_wuser(1'b0),
+        .S00_AXI_wstrb(dance_master_M_AXI_WSTRB),
         .S00_AXI_wvalid(dance_master_M_AXI_WVALID),
         .aclk(source_100mhz_clk_100mhz),
         .aresetn(source_100mhz_peripheral_aresetn));

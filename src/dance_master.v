@@ -20,6 +20,13 @@ module dance_master # (parameter FREQ_HZ = 100000000, SLAVE_ADDR = 32'h1000)
     input wire clk, resetn,
 
     input button,
+    
+    // We only use 10 bits. So the max dealy is around ~1s.
+    input[9:0] delay_ms,
+    
+    // 6 bits to define the pattern
+    input[5:0] input_pattern,
+
 
     //====================  An AXI-Lite Master Interface  ======================
 
@@ -68,58 +75,95 @@ wire[1:0]  AMCI_RRESP;
 wire       AMCI_RIDLE;
 //==========================================================================
 
-// This is the state of our state machine
-reg[3:0] fsm_state;
-
-// This is a countdown timer for implementing delays
-reg[31:0] delay;
+//==========================================================================
+// We use these to control the start/pause states.
+//==========================================================================
+reg[0:0] reg_dance;
 
 //==========================================================================
-// This state machine alternates sending 0xAAAA and 0x5555 to an AXI slave,
-// with a 250ms delay after each transaction
+// Controls the start/pause signals for the dancing state machine.
 //==========================================================================
 always @(posedge clk) begin
-    
+   
+    // Go to reset state -> dance off!
+    if (resetn == 0) begin
+            reg_dance <= 0;
+
+    end else if (button) begin
+            // If the button gets pressed, start or pause the dancing.
+            reg_dance <= ~reg_dance;
+    end
+end
+//==========================================================================
+
+//==========================================================================
+// We use these to control the dance_master main state machine
+//==========================================================================
+// This is the state of our state machine
+reg[3:0]  dance_fsm_state;
+
+// 1 means to the right, 0 to the left.
+reg       direction;
+
+// Constants to represent the direction the cylon-eye is moving
+localparam DIR_LEFT  = 0;
+localparam DIR_RIGHT = 1;
+
+reg[15:0] pattern;
+localparam MIN_START_PATTERN = 16'h0001;
+
+
+// Used to handle the delay.
+reg[31:0] reg_delay;
+
+//==========================================================================
+// This state machine generates the dancing patterns.
+//==========================================================================
+always @(posedge clk) begin
+
     AMCI_READ <= 0;
     AMCI_WRITE <= 0;
     
-    if (delay) delay <= delay - 1;
-
+    if(reg_delay) reg_delay <= reg_delay -1;
+    
+    // Go to reset state in case we get a reset signal or if we read the button and are in on state (LEDs dance is running).
     if (resetn == 0) begin
-        fsm_state <= 0;
-        delay     <= 0;
-    end else case (fsm_state)
+            dance_fsm_state     <= 0;
+            pattern             <= input_pattern | MIN_START_PATTERN;
+            direction           <= 0;
+            reg_delay           <= 0;  
 
-        // Wait for the button to be pressed
-        0:  if (button) fsm_state <= fsm_state + 1;
-        
-        // If the timer has expired, send 'AAAA' to the LED slave
-        1:  if (delay == 0) begin
+    end else case (dance_fsm_state)
+                   // If the timer has expired, update the pattern       
+        0:   if (reg_dance & (reg_delay == 0)) begin
                 AMCI_WADDR <= SLAVE_ADDR;
-                AMCI_WDATA <= 16'hAAAA;
+                AMCI_WDATA <= pattern;
                 AMCI_WRITE <= 1;
-                fsm_state  <= fsm_state + 1;
+                dance_fsm_state <= dance_fsm_state + 1;                
+             end
+        1:  begin
+                // if we are going left and did not touch the left edge yet:
+                if((direction == DIR_LEFT) && !(pattern & 16'h8000)) begin
+                    pattern <= (pattern << 1);
+                // if we are going right and did not touch the right edge yet:
+                end else if((direction == DIR_RIGHT) && !(pattern & 16'h0001)) begin
+                    pattern <= (pattern >> 1);
+                // otherwise just invert the direction
+                end else begin
+                    direction <= ~direction;
+                end
+                dance_fsm_state <= dance_fsm_state + 1;                
             end
-
-        // When the write transaction is complete, start a timer
-        2:  if (AMCI_WIDLE) begin
-                delay     <= FREQ_HZ / 4;
-                fsm_state <= fsm_state + 1;
-            end
-
-        // After the timer has expired, send '5555' to the LED slave
-        3:  if (delay == 0) begin
-                AMCI_WADDR <= SLAVE_ADDR;
-                AMCI_WDATA <= 16'h5555;
-                AMCI_WRITE <= 1;
-                fsm_state  <= fsm_state + 1;
-            end
-
-        // When the write transaction has completed, start a timer
-        4:  if (AMCI_WIDLE) begin
-                delay     <= FREQ_HZ / 5;
-                fsm_state <= 1;
-            end
+             // Wait until the write is done, determine the direction and restart the delay.
+        2:   if(AMCI_WIDLE) begin
+              
+               // One bit of the switches represents a delay of 100us.
+               // The clock runs with a 10ns period. Therefore we have to
+               // multiply by 100000 to get the needed amount of clock cycles withing 1ms.
+               // Mask out the highest 4 bits to avoid too slow delays.
+               reg_delay <= delay_ms * 100000;
+               dance_fsm_state <= 0;                
+             end
 
     endcase
 
